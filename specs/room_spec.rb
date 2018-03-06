@@ -84,7 +84,7 @@ describe "Room class" do
     it "returns false if room has one reservation and is unavailable" do
       @room.add_reservation(Hotel::Reservation.new(@ten_day))
       sample_date = Date.new(2018,3,8)
-      @room.available?@sample_date).must_equal false
+      @room.available?(sample_date).must_equal false
     end
 
     it "returns false if room has multiple reservations and is unavailable" do
