@@ -44,7 +44,8 @@ describe "Reservation class" do
   end
 
 
-
+  # TODO: Finish tests for reserve_specfic_room
+  # TODO: Refactor reserve_room so order of arguments doesn't matter
 
   describe "reserve_specfic_room(requested_start:, requested_end:, room:) method" do
     it "reserves the room requested for the given date range" do
@@ -52,7 +53,7 @@ describe "Reservation class" do
     end
 
     it "returns an error if the room is not available for the given range" do
-      
+
     end
   end
 

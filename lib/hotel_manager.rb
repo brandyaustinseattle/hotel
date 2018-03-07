@@ -34,7 +34,7 @@ module Hotel
 
     end
 
-    # X X X X X Need to edit
+    # X X X X X Need to finish testing
     def reserve_specfic_room(requested_start:, requested_end:, room:)
       room.available_range?(requested_start, requested_end)}
       room.add_reservation(reservation)
