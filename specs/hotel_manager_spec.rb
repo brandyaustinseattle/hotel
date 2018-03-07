@@ -43,6 +43,25 @@ describe "Reservation class" do
     end
   end
 
+
+
+
+  describe "reserve_specfic_room(requested_start:, requested_end:, room:) method" do
+    it "reserves the room requested for the given date range" do
+
+    end
+
+    it "returns an error if the room is not available for the given range" do
+      
+    end
+  end
+
+
+
+
+
+
+
   describe "find_reservations method" do
     it "returns one reservation when there's one on that date and one total" do
       @administrator.reserve_room("2018-3-5", "2018-3-15")
