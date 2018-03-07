@@ -20,9 +20,6 @@ describe "Reservation class" do
   end
 
   describe "reserve_room method" do
-    before do
-      @administrator = Hotel::Administrator.new
-    end
 
     it "accepts user input for requested_start and requested_end" do
       !@administrator.reserve_room("3-1-2018", "3-5-2018").must_raise StandardError
@@ -81,6 +78,43 @@ describe "Reservation class" do
 
     it "returns empty_array when there's no reservations on that date" do
       @administrator.find_reservations(Date.new(2018,5,1)).empty?.must_equal true
+    end
+  end
+
+  describe "find_rooms(date) method" do
+
+    before do
+      @room = @administrator.all_rooms.find {|room| room.room_number == 1}
+
+      ten_day = {
+        :start_date => Date.new(2018,3,5),
+        :end_date => Date.new(2018,3,15),
+        :room => 1,
+      }
+      @room.add_reservation(ten_day)
+    end
+
+    # it "returns all rooms when all available" do
+    #   available_rooms = @administrator.find_rooms(Date.new(2018,3,1))
+    #
+    #   available_rooms.length.must_equal 20
+    #   available_rooms[0].must_be_kind_of Hotel::Room
+    #   available_rooms[0].room_number.must_equal 1
+    # end
+
+    it "returns many rooms when many rooms available" do
+      available_rooms = @administrator.find_rooms(Date.new(2018,3,10))
+
+      binding.pry
+      available_rooms.length.must_equal 19
+      available_rooms[0].must_be_kind_of Hotel::Room
+      available_rooms[0].room_number.must_equal 2
+    end
+
+    it "returns one room when one room available" do
+    end
+
+    it "returns nil when no rooms available" do
     end
   end
 

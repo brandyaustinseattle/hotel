@@ -18,7 +18,7 @@ module Hotel
       length_of_stay * RATE
     end
 
-    def include_date?(date, end_date: nil)
+    def include_date?(date)
       date = Date.new(date) if date.class != Date
       @start_date > date || @end_date <= date ? false : true
     end

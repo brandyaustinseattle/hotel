@@ -41,10 +41,9 @@ module Hotel
       reservation.include_date?(date)}
     end
 
-    # # # # # NO TESTS YET
     def find_rooms(date)
       date = Date.new(date) if date.class != Date
-      @rooms.find_all {|room| room.available?(date)}
+      @all_rooms.find_all {|room| room.available_date?(date)}
     end
 
     private
