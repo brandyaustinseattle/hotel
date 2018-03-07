@@ -84,37 +84,59 @@ describe "Reservation class" do
   describe "find_rooms(date) method" do
 
     before do
-      @room = @administrator.all_rooms.find {|room| room.room_number == 1}
-
-      ten_day = {
+      @ten_day = {
         :start_date => Date.new(2018,3,5),
-        :end_date => Date.new(2018,3,15),
-        :room => 1,
+        :end_date => Date.new(2018,3,15)
       }
-      @room.add_reservation(ten_day)
     end
 
-    # it "returns all rooms when all available" do
-    #   available_rooms = @administrator.find_rooms(Date.new(2018,3,1))
-    #
-    #   available_rooms.length.must_equal 20
-    #   available_rooms[0].must_be_kind_of Hotel::Room
-    #   available_rooms[0].room_number.must_equal 1
-    # end
+    it "returns all rooms when all available" do
+      available_rooms = @administrator.find_rooms(Date.new(2018,3,1))
+
+      available_rooms.length.must_equal 20
+      available_rooms[0].must_be_kind_of Hotel::Room
+      available_rooms[0].room_number.must_equal 1
+    end
 
     it "returns many rooms when many rooms available" do
+      @ten_day[:room] = 1
+      reservation = Hotel::Reservation.new(@ten_day)
+      this_room = @administrator.all_rooms.find {|room| room.room_number == 1}
+      this_room.add_reservation(reservation)
+
       available_rooms = @administrator.find_rooms(Date.new(2018,3,10))
 
-      binding.pry
       available_rooms.length.must_equal 19
       available_rooms[0].must_be_kind_of Hotel::Room
       available_rooms[0].room_number.must_equal 2
     end
 
     it "returns one room when one room available" do
+      (1..19).each {|num|
+        @ten_day[:room] = num
+        reservation = Hotel::Reservation.new(@ten_day)
+        this_room = @administrator.all_rooms.find {|room| room.room_number == num}
+        this_room.add_reservation(reservation)
+      }
+
+      available_rooms = @administrator.find_rooms(Date.new(2018,3,10))
+
+      available_rooms.length.must_equal 1
+      available_rooms[0].must_be_kind_of Hotel::Room
+      available_rooms[0].room_number.must_equal 20
     end
 
-    it "returns nil when no rooms available" do
+    it "returns empty array when no rooms available" do
+      (1..20).each {|num|
+        @ten_day[:room] = num
+        reservation = Hotel::Reservation.new(@ten_day)
+        this_room = @administrator.all_rooms.find {|room| room.room_number == num}
+        this_room.add_reservation(reservation)
+      }
+
+      available_rooms = @administrator.find_rooms(Date.new(2018,3,10))
+
+      available_rooms.empty?.must_equal true
     end
   end
 

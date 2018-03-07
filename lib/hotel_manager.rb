@@ -34,17 +34,26 @@ module Hotel
 
     end
 
+    # X X X X X Need to edit
+    # def reserve_specfic_room(:requested_start, :requested_end, :room)
+    #   room.available_range?(requested_start, requested_end)}
+    #   room.add_reservation(reservation)
+    #   @all_reservations << reservation
+    # end
+
     def find_reservations(date)
-      date = Date.new(date) if date.class != Date
+      # date = Date.new(date) if date.class != Date
 
       @all_reservations.find_all {|reservation|
       reservation.include_date?(date)}
     end
 
     def find_rooms(date)
-      date = Date.new(date) if date.class != Date
+      # date = Date.new(date) if date.class != Date
       @all_rooms.find_all {|room| room.available_date?(date)}
     end
+
+
 
     private
 

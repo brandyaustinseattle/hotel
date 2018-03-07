@@ -19,18 +19,15 @@ module Hotel
     end
 
     def include_date?(date)
-      date = Date.new(date) if date.class != Date
+      # date = Date.new(date) if date.class != Date
       @start_date > date || @end_date <= date ? false : true
     end
 
     def range_conflict?(requested_start, requested_end)
-      if @start_date > requested_start && @start_date >= requested_end
-        return false
-      elsif @end_date <= requested_start && @end_date < requested_end
-        return false
-      else
-        return true
-      end
+      return false if @start_date > requested_start && @start_date >= requested_end
+      return false if @end_date <= requested_start && @end_date < requested_end
+
+      return true
     end
 
   end

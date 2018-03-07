@@ -15,7 +15,7 @@ module Hotel
     end
 
     def available_date?(date)
-        date = Date.new(date) if date.class != Date
+        # date = Date.new(date) if date.class != Date
 
         @reservations.none? {|reservation|
           reservation.include_date?(date)
