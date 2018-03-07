@@ -78,45 +78,45 @@ describe "Reservation class" do
     end
   end
 
-  # describe "date_conflict?(requested_start, requested_end) method" do
-  #   before do
-  #     ten_day = {
-  #       :start_date => Date.new(2018,3,5),
-  #       :end_date => Date.new(2018,3,15),
-  #       :room => 1,
-  #     }
-  #     @reservation = Hotel::Reservation.new(ten_day)
-  #   end
-  #
-  #   it "returns false if requested dates are before reservation dates" do
-  #     requested_start = Date.new(2018,2,5)
-  #     requested_end = Date.new(2018,2,8)
-  #     @reservation.date_conflict?(requested_start, requested_end).must_equal false
-  #   end
-  #
-  #   it "returns false if requested dates are after reservation dates" do
-  #     requested_start = Date.new(2018,3,20)
-  #     requested_end = Date.new(2018,3,25)
-  #     @reservation.date_conflict?(requested_start, requested_end).must_equal false
-  #   end
-  #
-  #   it "returns false if requested start_date matches reservation end_date" do
-  #     requested_start = Date.new(2018,3,15)
-  #     requested_end = Date.new(2018,3,20)
-  #     @reservation.date_conflict?(requested_start, requested_end).must_equal false
-  #   end
-  #
-  #   it "returns true if requested dates and reservation dates have short overlap" do
-  #     requested_start = Date.new(2018,3,1)
-  #     requested_end = Date.new(2018,3,6)
-  #     @reservation.date_conflict?(requested_start, requested_end).must_equal true
-  #   end
-  #
-  #   it "returns true if requested dates and reservation dates have long overlap" do
-  #     requested_start = Date.new(2018,3,1)
-  #     requested_end = Date.new(2018,3,13)
-  #     @reservation.date_conflict?(requested_start, requested_end).must_equal true
-  #   end
-  # end
+  describe "range_conflict?(requested_start, requested_end) method" do
+    before do
+      ten_day = {
+        :start_date => Date.new(2018,3,5),
+        :end_date => Date.new(2018,3,15),
+        :room => 1,
+      }
+      @reservation = Hotel::Reservation.new(ten_day)
+    end
+
+    it "returns false if requested dates are before reservation dates" do
+      requested_start = Date.new(2018,2,5)
+      requested_end = Date.new(2018,2,8)
+      @reservation.range_conflict?(requested_start, requested_end).must_equal false
+    end
+
+    it "returns false if requested dates are after reservation dates" do
+      requested_start = Date.new(2018,3,20)
+      requested_end = Date.new(2018,3,25)
+      @reservation.range_conflict?(requested_start, requested_end).must_equal false
+    end
+
+    it "returns false if requested start_date matches reservation end_date" do
+      requested_start = Date.new(2018,3,15)
+      requested_end = Date.new(2018,3,20)
+      @reservation.range_conflict?(requested_start, requested_end).must_equal false
+    end
+
+    it "returns true if requested dates and reservation dates have short overlap" do
+      requested_start = Date.new(2018,3,1)
+      requested_end = Date.new(2018,3,6)
+      @reservation.range_conflict?(requested_start, requested_end).must_equal true
+    end
+
+    it "returns true if requested dates and reservation dates have long overlap" do
+      requested_start = Date.new(2018,3,1)
+      requested_end = Date.new(2018,3,13)
+      @reservation.range_conflict?(requested_start, requested_end).must_equal true
+    end
+  end
 
 end

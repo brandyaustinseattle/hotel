@@ -55,7 +55,6 @@ describe "Room class" do
         :end_date => Date.new(2018,3,2),
         :room => 1,
       }
-
       @ten_day = {
         :start_date => Date.new(2018,3,5),
         :end_date => Date.new(2018,3,15),
@@ -92,6 +91,62 @@ describe "Room class" do
       @room.add_reservation(Hotel::Reservation.new(@ten_day))
       sample_date = Date.new(2018,3,8)
       @room.available_date?(sample_date).must_equal false
+    end
+  end
+
+
+
+
+
+
+
+
+
+
+
+
+
+  describe "available_range?(requested_start, requested_end) method" do
+    before do
+      @room = Hotel::Room.new(1)
+
+      ten_day = {
+        :start_date => Date.new(2018,3,5),
+        :end_date => Date.new(2018,3,15),
+        :room => 1,
+      }
+
+      @room.add_reservation(Hotel::Reservation.new(ten_day))
+    end
+
+    it "returns true if requested dates are before reservation dates" do
+      requested_start = Date.new(2018,2,5)
+      requested_end = Date.new(2018,2,8)
+      @room.available_range?(requested_start, requested_end).must_equal true
+    end
+
+    it "returns true if requested dates are after reservation dates" do
+      requested_start = Date.new(2018,3,20)
+      requested_end = Date.new(2018,3,25)
+      @room.available_range?(requested_start, requested_end).must_equal true
+    end
+
+    it "returns true if requested start_date matches reservation end_date" do
+      requested_start = Date.new(2018,3,15)
+      requested_end = Date.new(2018,3,20)
+      @room.available_range?(requested_start, requested_end).must_equal true
+    end
+
+    it "returns false if requested dates and reservation dates have short overlap" do
+      requested_start = Date.new(2018,3,1)
+      requested_end = Date.new(2018,3,6)
+      @room.available_range?(requested_start, requested_end).must_equal false
+    end
+
+    it "returns false if requested dates and reservation dates have long overlap" do
+      requested_start = Date.new(2018,3,1)
+      requested_end = Date.new(2018,3,13)
+      @room.available_range?(requested_start, requested_end).must_equal false
     end
   end
 
