@@ -18,21 +18,20 @@ module Hotel
       length_of_stay * RATE
     end
 
-    def include_date?(date)
+    def include_date?(date, end_date: nil)
       date = Date.new(date) if date.class != Date
       @start_date > date || @end_date <= date ? false : true
     end
 
-    # # # # # deprecate?? and call include_date twice on each time?
-    # def date_conflict?(requested_start, requested_end)
-    #   if @start_date > requested_start && @start_date >= requested_end
-    #     return false
-    #   elsif @end_date <= requested_start && @end_date < requested_end
-    #     return false
-    #   else
-    #     return true
-    #   end
-    # end
+    def range_conflict?(requested_start, requested_end)
+      if @start_date > requested_start && @start_date >= requested_end
+        return false
+      elsif @end_date <= requested_start && @end_date < requested_end
+        return false
+      else
+        return true
+      end
+    end
 
   end
 end

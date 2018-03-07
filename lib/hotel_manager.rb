@@ -19,11 +19,8 @@ module Hotel
         raiseStandardError("Start date is after end date.")
       end
 
-      # chosen_room = @all_rooms.find {|room|
-      #   room.available?(requested_start, requested_end)}
-
       chosen_room = @all_rooms.find {|room|
-        room.available?(requested_start) || room.available?(requested_end)}
+        room.available_range?(requested_start, requested_end)}
 
       input = {
         :start_date => requested_start,
@@ -44,6 +41,7 @@ module Hotel
       reservation.include_date?(date)}
     end
 
+    # # # # # NO TESTS YET
     def find_rooms(date)
       date = Date.new(date) if date.class != Date
       @rooms.find_all {|room| room.available?(date)}

@@ -38,6 +38,12 @@ describe "Reservation class" do
       rooms = @administrator.all_rooms
       rooms[0].reservations.length.must_equal 1
     end
+
+    it "adds a reservation to the room instance" do
+      @administrator.reserve_room("3-1-2018", "3-5-2018")
+      rooms = @administrator.all_rooms
+      rooms[0].reservations.length.must_equal 1
+    end
   end
 
   describe "find_reservations method" do

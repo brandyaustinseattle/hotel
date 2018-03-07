@@ -48,7 +48,7 @@ describe "Room class" do
     end
   end
 
-  describe "available?(date) method" do
+  describe "available_date?(date) method" do
     before do
       @one_day = {
         :start_date => Date.new(2018,3,1),
@@ -63,35 +63,35 @@ describe "Room class" do
       }
       @room = Hotel::Room.new(1)
 
-      @available_date = Date.new(2018,2,5)
+      @av_date = Date.new(2018,2,5)
     end
 
     it "returns true has no reservations" do
-      @room.available?(@available_date).must_equal true
+      @room.available_date?(@av_date).must_equal true
     end
 
     it "returns true if room has one reservation, but still available" do
       @room.add_reservation(Hotel::Reservation.new(@one_day))
-      @room.available?(@available_date).must_equal true
+      @room.available_date?(@av_date).must_equal true
     end
 
     it "returns true if room has multiple reservation, but still available" do
       @room.add_reservation(Hotel::Reservation.new(@one_day))
       @room.add_reservation(Hotel::Reservation.new(@ten_day))
-      @room.available?(@available_date).must_equal true
+      @room.available_date?(@av_date).must_equal true
     end
 
     it "returns false if room has one reservation and is unavailable" do
       @room.add_reservation(Hotel::Reservation.new(@ten_day))
       sample_date = Date.new(2018,3,8)
-      @room.available?(sample_date).must_equal false
+      @room.available_date?(sample_date).must_equal false
     end
 
     it "returns false if room has multiple reservations and is unavailable" do
       @room.add_reservation(Hotel::Reservation.new(@one_day))
       @room.add_reservation(Hotel::Reservation.new(@ten_day))
       sample_date = Date.new(2018,3,8)
-      @room.available?(sample_date).must_equal false
+      @room.available_date?(sample_date).must_equal false
     end
   end
 
