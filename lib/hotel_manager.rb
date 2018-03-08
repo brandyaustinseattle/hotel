@@ -10,10 +10,10 @@ module Hotel
       @all_reservations = []
     end
 
-    def reserve_room(requested_start, requested_end)
+    def reserve_any_room(requested_start:, requested_end:)
 
-      requested_start = Date.parse(requested_start)
-      requested_end = Date.parse(requested_end)
+      # requested_start = Date.parse(requested_start)
+      # requested_end = Date.parse(requested_end)
 
       if requested_start > requested_end
         raiseStandardError("Start date is after end date.")
@@ -34,26 +34,39 @@ module Hotel
 
     end
 
-    # X X X X X Need to finish testing
-    def reserve_specfic_room(requested_start:, requested_end:, room:)
-      room.available_range?(requested_start, requested_end)}
-      room.add_reservation(reservation)
+    def reserve_specific_room(requested_start:, requested_end:, room_num:)
+
+      if requested_start > requested_end
+        raiseStandardError("Start date is after end date.")
+      end
+
+      requested_room = @all_rooms.find { |room| room.room_number == room_num }
+
+      if requested_room.available_range?(requested_start, requested_end) == false
+        raiseStandardError("Room #{room_num} is not available at that time.")
+      end
+
+      input = {
+        :start_date => requested_start,
+        :end_date => requested_end,
+        :room => room_num,
+      }
+
+      reservation = Hotel::Reservation.new(input)
+      requested_room.add_reservation(reservation)
       @all_reservations << reservation
     end
 
     def find_reservations(date)
       # date = Date.new(date) if date.class != Date
-
-      @all_reservations.find_all {|reservation|
-      reservation.include_date?(date)}
+      @all_reservations.find_all { |reservation|
+      reservation.include_date?(date) }
     end
 
     def find_rooms(date)
       # date = Date.new(date) if date.class != Date
-      @all_rooms.find_all {|room| room.available_date?(date)}
+      @all_rooms.find_all { |room| room.available_date?(date) }
     end
-
-
 
     private
 
