@@ -11,7 +11,6 @@ module Hotel
     end
 
     def reserve_any_room(requested_start:, requested_end:)
-
       # requested_start = Date.parse(requested_start)
       # requested_end = Date.parse(requested_end)
 
@@ -35,7 +34,6 @@ module Hotel
     end
 
     def reserve_specific_room(requested_start:, requested_end:, room_num:)
-
       if requested_start > requested_end
         raiseStandardError("Start date is after end date.")
       end
@@ -63,6 +61,7 @@ module Hotel
       reservation.include_date?(date) }
     end
 
+    # find available rooms
     def find_rooms(date)
       # date = Date.new(date) if date.class != Date
       @all_rooms.find_all { |room| room.available_date?(date) }
