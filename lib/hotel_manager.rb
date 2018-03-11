@@ -3,20 +3,39 @@ require 'pry'
 module Hotel
   class Administrator
 
-    attr_reader :all_rooms, :all_reservations
+    attr_reader :all_rooms, :all_reservations, :all_blocks
 
     def initialize
       @all_rooms = load_rooms
       @all_reservations = []
+      @all_blocks = []
+    end
+
+    def create_block(requested_start:, requested_end:, party:, discount:, rooms_needed:)
+
+      rooms_available = @all_rooms.find_all {|room|
+          room.available_range?(requested_start, requested_end)}
+
+      if rooms_available.length < rooms_needed
+        raiseStandardError("#{rooms_needed} rooms not available on those dates.")
+      end
+
+      rooms = rooms_available.take(rooms_needed)
+
+      input = {
+        :start_date => requested_start,
+        :end_date => requested_end,
+        :party => party,
+        :discount => discount,
+        :rooms => rooms
+      }
+
+      block = Hotel::Block.new(input)
+      rooms.each {|room| room.add_block(block)}
+      @all_blocks << block
     end
 
     def reserve_any_room(requested_start:, requested_end:)
-      # requested_start = Date.parse(requested_start)
-      # requested_end = Date.parse(requested_end)
-
-      if requested_start > requested_end
-        raiseStandardError("Start date is after end date.")
-      end
 
       chosen_room = @all_rooms.find {|room|
         room.available_range?(requested_start, requested_end)}
@@ -30,13 +49,9 @@ module Hotel
       reservation = Hotel::Reservation.new(input)
       chosen_room.add_reservation(reservation)
       @all_reservations << reservation
-
     end
 
     def reserve_specific_room(requested_start:, requested_end:, room_num:)
-      if requested_start > requested_end
-        raiseStandardError("Start date is after end date.")
-      end
 
       requested_room = @all_rooms.find { |room| room.room_number == room_num }
 
@@ -56,16 +71,16 @@ module Hotel
     end
 
     def find_reservations(date)
-      # date = Date.new(date) if date.class != Date
       @all_reservations.find_all { |reservation|
       reservation.include_date?(date) }
     end
 
-    # find available rooms
+    # find available rooms not in block
     def find_rooms(date)
-      # date = Date.new(date) if date.class != Date
       @all_rooms.find_all { |room| room.available_date?(date) }
     end
+
+
 
     private
 

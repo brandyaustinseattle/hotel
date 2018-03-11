@@ -1,5 +1,8 @@
 require 'pry'
 
+# MAKE RESERVATION TAKE INSTANCE OF ROOM
+# UPDATE TOTAL COST METHOD
+
 module Hotel
   class Reservation
 
@@ -19,8 +22,7 @@ module Hotel
     end
 
     def include_date?(date)
-      # date = Date.new(date) if date.class != Date
-      @start_date > date || @end_date <= date ? false : true
+      @start_date < date && @end_date > date
     end
 
     def range_conflict?(requested_start, requested_end)

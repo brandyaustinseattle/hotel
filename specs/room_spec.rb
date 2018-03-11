@@ -17,6 +17,8 @@ describe "Room class" do
       @room.room_number.must_equal 1
       @room.reservations.must_be_kind_of Array
       @room.reservations.empty?.must_equal true
+      @room.blocks.must_be_kind_of Array
+      @room.blocks.empty?.must_equal true
     end
   end
 
@@ -48,7 +50,50 @@ describe "Room class" do
     end
   end
 
-  describe "available_date?(date) method" do
+  describe "add_block method" do
+    before do
+      @room_one = Hotel::Room.new(1)
+      @room_two = Hotel::Room.new(2)
+
+      input = {
+        :requested_start => Date.new(2018,3,5),
+        :requested_end => Date.new(2018,3,15),
+        :party => "Sonics",
+        :discount => 0.10,
+        :rooms => [@room_one, @room_two]
+      }
+      @first_block = Hotel::Block.new(input)
+    end
+
+    it "adds block when one block" do
+      @room_one.add_block(@first_block)
+      @room_one.blocks.length.must_equal 1
+
+      @room_two.add_block(@first_block)
+      @room_two.blocks.length.must_equal 1
+    end
+
+    it "adds block when multiple blocks" do
+      input = {
+        :requested_start => Date.new(2018,3,18),
+        :requested_end => Date.new(2018,3,20),
+        :party => "Spurs",
+        :discount => 0.10,
+        :rooms => [@room_one, @room_two]
+      }
+      second_block = Hotel::Block.new(input)
+
+      @room_one.add_block(@first_block)
+      @room_one.add_block(second_block)
+      @room_one.blocks.length.must_equal 2
+
+      @room_two.add_block(@first_block)
+      @room_two.add_block(second_block)
+      @room_two.blocks.length.must_equal 2
+    end
+  end
+
+  describe "available_date?(date) method - reservations heavy" do
     before do
       @one_day = {
         :start_date => Date.new(2018,3,1),
@@ -61,11 +106,10 @@ describe "Room class" do
         :room => 1,
       }
       @room = Hotel::Room.new(1)
-
       @av_date = Date.new(2018,2,5)
     end
 
-    it "returns true has no reservations" do
+    it "returns true has no reservations or blocks" do
       @room.available_date?(@av_date).must_equal true
     end
 
@@ -94,17 +138,38 @@ describe "Room class" do
     end
   end
 
+  describe "available_date?(date) method - blocks heavy" do
+    before do
+      @room = Hotel::Room.new(1)
+      @extra_room = Hotel::Room.new(2)
 
+      input = {
+        :requested_start => Date.new(2018,3,5),
+        :requested_end => Date.new(2018,3,15),
+        :party => "Sonics",
+        :discount => 0.10,
+        :rooms => [@room, @extra_room]
+      }
 
+      @block = Hotel::Block.new(input)
+      @room.add_block(@block)
+      @extra_room.add_block(@block)
 
+      @av_date = Date.new(2018,2,5)
+    end
 
+    it "returns true if room has block, but still available" do
+      @room.available_date?(@av_date).must_equal true
+    end
 
+    it "returns true if room has block that ends on request_date" do
+      @room.available_date?(Date.new(2018,3,15)).must_equal true
+    end
 
-
-
-
-
-
+    it "returns false if room has one block and not available" do
+      @room.available_date?(Date.new(2018,3,8)).must_equal false
+    end
+  end
 
   describe "available_range?(requested_start, requested_end) method" do
     before do
@@ -117,6 +182,10 @@ describe "Room class" do
       }
 
       @room.add_reservation(Hotel::Reservation.new(ten_day))
+    end
+
+    it "raises error if start_date after end_date" do
+      proc{ @room.available_range?(Date.new(2018,3,2), Date.new(2018,3,1)).must_raise StandardError }
     end
 
     it "returns true if requested dates are before reservation dates" do

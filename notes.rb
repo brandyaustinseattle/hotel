@@ -12,7 +12,6 @@ nil group_name means not part of block
 
 room can have block flag to account for rooms that are part of a block, but not yet reserved
 
-
 used in create_rooms_block method
   - rooms_needed
 
@@ -21,6 +20,20 @@ used in create_rooms_block method
 
 add method to create_rooms_block in hotel manager
  - dont create reservation, just create block
+ - initalize as block class
+# def create_rooms_block(requested_start:, requested_end:, group:, rooms_needed:)
+# 
+#     possible_rooms = @all_rooms.find_all {|room|
+#       room.available_range?(requested_start, requested_end)}
+#
+#     if possible_rooms.length < rooms_needed
+#       raiseStandardError("#{rooms_needed} are not available at that time.")
+#     end
+#
+#     possible_rooms.
+#
+# end
+
 
 add method to reserve_room_in_block in hotel manager
 

@@ -16,10 +16,54 @@ describe "Administrator class" do
       @administrator.all_rooms.length.must_equal 20
       @administrator.all_reservations.must_be_kind_of Array
       @administrator.all_reservations.empty?.must_equal true
+      @administrator.all_blocks.must_be_kind_of Array
+      @administrator.all_blocks.empty?.must_equal true
     end
   end
 
-  describe "reserve_any_room method" do
+  describe "create_block(requested_start:, requested_end:, party:, discount:, rooms_needed:) method" do
+
+    it "adds a block to @all_blocks when one room" do
+      @administrator.create_block( requested_start: Date.new(2018,3,5), requested_end: Date.new(2018,3,15), party: "Sonics", discount: 0.10, rooms_needed: 1)
+
+      @administrator.all_blocks.length.must_equal 1
+      @administrator.all_blocks[0].rooms.length.must_equal 1
+    end
+
+    it "adds a block to @all_blocks when some rooms" do
+      @administrator.create_block( requested_start: Date.new(2018,3,5), requested_end: Date.new(2018,3,15), party: "Sonics", discount: 0.10, rooms_needed: 3)
+
+      @administrator.all_blocks.length.must_equal 1
+      @administrator.all_blocks[0].rooms.length.must_equal 3
+    end
+
+    it "adds a block to @all_blocks when many room" do
+      @administrator.create_block( requested_start: Date.new(2018,3,5), requested_end: Date.new(2018,3,15), party: "Sonics", discount: 0.10, rooms_needed: 18)
+
+      @administrator.all_blocks.length.must_equal 1
+      @administrator.all_blocks[0].rooms.length.must_equal 18
+    end
+
+    it "raises an error if there's not enough rooms due to number requested" do
+      proc{ @administrator.create_block( requested_start: Date.new(2018,3,5), requested_end: Date.new(2018,3,15), party: "Sonics", discount: 0.10, rooms_needed: 25) }.must_raise StandardError
+    end
+
+    it "raises an error if there's not enough rooms due to prior reservations" do
+      8.times {@administrator.reserve_any_room(requested_start: Date.new(2018,3,1), requested_end: Date.new(2018,3,8))}
+
+      proc{ @administrator.create_block( requested_start: Date.new(2018,3,5), requested_end: Date.new(2018,3,15), party: "Sonics", discount: 0.10, rooms_needed: 15) }.must_raise StandardError
+    end
+
+    it "adds a block to all impacted room instances" do
+      @administrator.create_block( requested_start: Date.new(2018,3,5), requested_end: Date.new(2018,3,15), party: "Sonics", discount: 0.10, rooms_needed: 3)
+
+      @administrator.all_rooms[0].blocks.length.must_equal 1
+      @administrator.all_rooms[1].blocks.length.must_equal 1
+      @administrator.all_rooms[2].blocks.length.must_equal 1
+    end
+  end
+
+  describe "reserve_any_room(requested_start:, requested_end:) method" do
     it "raises error if requested_end is before requested_start" do
       proc{ @administrator.reserve_any_room(requested_start: Date.new(2018,3,5), requested_end: Date.new(2018,3,1)) }.must_raise StandardError
     end
