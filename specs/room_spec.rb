@@ -56,8 +56,8 @@ describe "Room class" do
       @room_two = Hotel::Room.new(2)
 
       input = {
-        :requested_start => Date.new(2018,3,5),
-        :requested_end => Date.new(2018,3,15),
+        :start_date => Date.new(2018,3,5),
+        :end_date => Date.new(2018,3,15),
         :party => "Sonics",
         :discount => 0.10,
         :rooms => [@room_one, @room_two]
@@ -75,8 +75,8 @@ describe "Room class" do
 
     it "adds block when multiple blocks" do
       input = {
-        :requested_start => Date.new(2018,3,18),
-        :requested_end => Date.new(2018,3,20),
+        :start_date => Date.new(2018,3,18),
+        :end_date => Date.new(2018,3,20),
         :party => "Spurs",
         :discount => 0.10,
         :rooms => [@room_one, @room_two]
@@ -144,8 +144,8 @@ describe "Room class" do
       @extra_room = Hotel::Room.new(2)
 
       input = {
-        :requested_start => Date.new(2018,3,5),
-        :requested_end => Date.new(2018,3,15),
+        :start_date => Date.new(2018,3,5),
+        :end_date => Date.new(2018,3,15),
         :party => "Sonics",
         :discount => 0.10,
         :rooms => [@room, @extra_room]
@@ -171,7 +171,7 @@ describe "Room class" do
     end
   end
 
-  describe "available_range?(requested_start, requested_end) method" do
+  describe "available_range?(start_date, end_date) method" do
     before do
       @room = Hotel::Room.new(1)
 
@@ -189,33 +189,33 @@ describe "Room class" do
     end
 
     it "returns true if requested dates are before reservation dates" do
-      requested_start = Date.new(2018,2,5)
-      requested_end = Date.new(2018,2,8)
-      @room.available_range?(requested_start, requested_end).must_equal true
+      start_date = Date.new(2018,2,5)
+      end_date = Date.new(2018,2,8)
+      @room.available_range?(start_date, end_date).must_equal true
     end
 
     it "returns true if requested dates are after reservation dates" do
-      requested_start = Date.new(2018,3,20)
-      requested_end = Date.new(2018,3,25)
-      @room.available_range?(requested_start, requested_end).must_equal true
+      start_date = Date.new(2018,3,20)
+      end_date = Date.new(2018,3,25)
+      @room.available_range?(start_date, end_date).must_equal true
     end
 
     it "returns true if requested start_date matches reservation end_date" do
-      requested_start = Date.new(2018,3,15)
-      requested_end = Date.new(2018,3,20)
-      @room.available_range?(requested_start, requested_end).must_equal true
+      start_date = Date.new(2018,3,15)
+      end_date = Date.new(2018,3,20)
+      @room.available_range?(start_date, end_date).must_equal true
     end
 
     it "returns false if requested dates and reservation dates have short overlap" do
-      requested_start = Date.new(2018,3,1)
-      requested_end = Date.new(2018,3,6)
-      @room.available_range?(requested_start, requested_end).must_equal false
+      start_date = Date.new(2018,3,1)
+      end_date = Date.new(2018,3,6)
+      @room.available_range?(start_date, end_date).must_equal false
     end
 
     it "returns false if requested dates and reservation dates have long overlap" do
-      requested_start = Date.new(2018,3,1)
-      requested_end = Date.new(2018,3,13)
-      @room.available_range?(requested_start, requested_end).must_equal false
+      start_date = Date.new(2018,3,1)
+      end_date = Date.new(2018,3,13)
+      @room.available_range?(start_date, end_date).must_equal false
     end
   end
 

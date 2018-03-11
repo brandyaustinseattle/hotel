@@ -1,27 +1,27 @@
 require 'pry'
 
 module Hotel
-  class Block
+  class Block < Reservation
 
-    attr_reader :start_date, :end_date, :party, :discount, :rooms
+    attr_reader :discount, :group, :guest
 
     def initialize(input)
-      @start_date = input[:requested_start]
-      @end_date = input[:requested_end]
-      @party = input[:party]
+      super
       @discount = input[:discount]
-      @rooms = input[:rooms]
+      @group = input[:group]
+      @guest = nil
     end
 
-    def include_date?(date)
-      @start_date < date && @end_date > date
+    def find_total_cost
+      super * @rooms.length * (1 - @discount)
     end
 
-    def range_conflict?(requested_start, requested_end)
-      return false if @start_date > requested_start && @start_date >= requested_end
-      return false if @end_date <= requested_start && @end_date < requested_end
+    def cost_per_guest
+      self.find_total_cost / @rooms.length
+    end
 
-      return true
+    def assign_guest(name)
+      @guest = name
     end
 
   end

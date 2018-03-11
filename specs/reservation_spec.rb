@@ -2,15 +2,20 @@ require_relative 'spec_helper'
 require 'pry'
 
 describe "Reservation class" do
+  before do
+    administrator = Hotel::Administrator.new
+    @rooms = [administrator.all_rooms.take(1)]
+  end
 
   describe "initialize method" do
     before do
+
       start_date = Date.new(2018,3,1)
       end_date = Date.new(2018,3,3)
       input = {
         :start_date => start_date,
         :end_date => end_date,
-        :room => 1,
+        :rooms => @rooms,
       }
       @reservation = Hotel::Reservation.new(input)
     end
@@ -22,8 +27,8 @@ describe "Reservation class" do
     it "is set up for specific attributes and data types" do
       @reservation.start_date.must_be_kind_of Date
       @reservation.end_date.must_be_kind_of Date
-      @reservation.room.must_be_kind_of Integer
-      @reservation.room.must_equal 1
+      @reservation.rooms.must_be_kind_of Array
+      @reservation.rooms.length.must_equal 1
     end
   end
 
@@ -32,12 +37,12 @@ describe "Reservation class" do
       @one_day = {
         :start_date => Date.new(2018,3,1),
         :end_date => Date.new(2018,3,2),
-        :room => 1,
+        :rooms => @rooms,
       }
       @ten_day = {
         :start_date => Date.new(2018,3,5),
         :end_date => Date.new(2018,3,15),
-        :room => 1,
+        :rooms => @rooms,
       }
     end
 
@@ -57,7 +62,7 @@ describe "Reservation class" do
       ten_day = {
         :start_date => Date.new(2018,3,5),
         :end_date => Date.new(2018,3,15),
-        :room => 1,
+        :rooms => @rooms,
       }
       @reservation = Hotel::Reservation.new(ten_day)
     end
@@ -83,7 +88,7 @@ describe "Reservation class" do
       ten_day = {
         :start_date => Date.new(2018,3,5),
         :end_date => Date.new(2018,3,15),
-        :room => 1,
+        :rooms => @rooms,
       }
       @reservation = Hotel::Reservation.new(ten_day)
     end

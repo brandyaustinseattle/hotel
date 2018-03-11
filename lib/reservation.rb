@@ -1,19 +1,16 @@
 require 'pry'
 
-# MAKE RESERVATION TAKE INSTANCE OF ROOM
-# UPDATE TOTAL COST METHOD
-
 module Hotel
   class Reservation
 
     RATE = 200.0
 
-    attr_reader :start_date, :end_date, :room
+    attr_reader :start_date, :end_date, :rooms
 
     def initialize(input)
       @start_date = input[:start_date]
       @end_date = input[:end_date]
-      @room = input[:room]
+      @rooms = input[:rooms]
     end
 
     def find_total_cost
