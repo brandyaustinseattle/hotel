@@ -13,6 +13,10 @@ module Hotel
       @rooms = input[:rooms]
     end
 
+    def block?
+      false
+    end
+
     def find_total_cost
       length_of_stay = @end_date - @start_date
       length_of_stay * RATE

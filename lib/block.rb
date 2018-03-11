@@ -12,6 +12,10 @@ module Hotel
       @guest = nil
     end
 
+    def block?
+      true
+    end
+
     def find_total_cost
       super * @rooms.length * (1 - @discount)
     end
