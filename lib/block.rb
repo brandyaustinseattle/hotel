@@ -3,17 +3,21 @@ require 'pry'
 module Hotel
   class Block < Reservation
 
-    attr_reader :discount, :group, :guest
+    attr_reader :discount, :group, :guest_list
 
     def initialize(input)
       super
       @discount = input[:discount]
       @group = input[:group]
-      @guest = nil
+      @guest_list = load_guest_list
     end
 
     def block?
       true
+    end
+
+    def range_match?(requested_start, requested_end)
+      requested_start == @start_date && requested_end == @end_date
     end
 
     def find_total_cost
@@ -24,8 +28,18 @@ module Hotel
       self.find_total_cost / @rooms.length
     end
 
-    def assign_guest(name)
-      @guest = name
+    def assign_guest(room, name)
+      raise StandardError("That room isn't part of #{@group}.") if !@rooms.include?(room)
+
+      @guest_list[room] = name
+    end
+
+    private
+
+    def load_guest_list
+      guest_list = {}
+      @rooms.each { |room| guest_list[room] = nil }
+      return guest_list
     end
 
   end

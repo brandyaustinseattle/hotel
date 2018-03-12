@@ -27,7 +27,7 @@ describe "Room class" do
       @one_day = {
         :start_date => Date.new(2018,3,1),
         :end_date => Date.new(2018,3,2),
-        :room => 1,
+        :rooms => [@room]
       }
     end
 
@@ -40,7 +40,7 @@ describe "Room class" do
       ten_day = {
         :start_date => Date.new(2018,3,5),
         :end_date => Date.new(2018,3,15),
-        :room => 1,
+        :rooms => [@room]
       }
       @room.add_reservation(@one_day)
       @room.add_reservation(ten_day)
@@ -91,52 +91,53 @@ describe "Room class" do
     end
   end
 
-  describe "available_date?(date) method - general reservations heavy" do
+  describe "available_date?(date, group) method - general public requesting with gen reservation in place" do
     before do
+      @room = Hotel::Room.new(1)
+      @av_date = Date.new(2018,2,5)
+
       @one_day = {
         :start_date => Date.new(2018,3,1),
         :end_date => Date.new(2018,3,2),
-        :room => 1,
+        :rooms => [@room]
       }
       @ten_day = {
         :start_date => Date.new(2018,3,5),
         :end_date => Date.new(2018,3,15),
-        :room => 1,
+        :rooms => [@room]
       }
-      @room = Hotel::Room.new(1)
-      @av_date = Date.new(2018,2,5)
     end
 
     it "returns true has if it has no reservations" do
-      @room.available_date?(@av_date).must_equal true
+      @room.available_date?(@av_date, nil).must_equal true
     end
 
     it "returns true if room has one reservation, but still available" do
       @room.add_reservation(Hotel::Reservation.new(@one_day))
-      @room.available_date?(@av_date).must_equal true
+      @room.available_date?(@av_date, nil).must_equal true
     end
 
     it "returns true if room has multiple reservation, but still available" do
       @room.add_reservation(Hotel::Reservation.new(@one_day))
       @room.add_reservation(Hotel::Reservation.new(@ten_day))
-      @room.available_date?(@av_date).must_equal true
+      @room.available_date?(@av_date, nil).must_equal true
     end
 
     it "returns false if room has one reservation and is unavailable" do
       @room.add_reservation(Hotel::Reservation.new(@ten_day))
       sample_date = Date.new(2018,3,8)
-      @room.available_date?(sample_date).must_equal false
+      @room.available_date?(sample_date, nil).must_equal false
     end
 
     it "returns false if room has multiple reservations and is unavailable" do
       @room.add_reservation(Hotel::Reservation.new(@one_day))
       @room.add_reservation(Hotel::Reservation.new(@ten_day))
       sample_date = Date.new(2018,3,8)
-      @room.available_date?(sample_date).must_equal false
+      @room.available_date?(sample_date, nil).must_equal false
     end
   end
 
-  describe "available_date?(date) method - block reservations heavy" do
+  describe "available_date?(date, group) method - general public requesting with block reservation in place" do
     before do
       @room = Hotel::Room.new(1)
       @extra_room = Hotel::Room.new(2)
@@ -157,67 +158,101 @@ describe "Room class" do
     end
 
     it "returns true if room has block, but still available" do
-      @room.available_date?(@av_date).must_equal true
+      @room.available_date?(@av_date, nil).must_equal true
     end
 
+
     it "returns true if room has block that ends on request_date" do
-      @room.available_date?(Date.new(2018,3,15)).must_equal true
+      @room.available_date?(Date.new(2018,3,15), nil).must_equal true
     end
 
     it "returns false if room has one block and not available" do
-      @room.available_date?(Date.new(2018,3,8)).must_equal false
+      @room.available_date?(Date.new(2018,3,8), nil).must_equal false
     end
   end
 
-  describe "available_range?(start_date, end_date) method - general reservations heavy" do
+  describe "available_date?(date, group) method - block guest requesting" do
+    before do
+      @room = Hotel::Room.new(1)
+      @extra_room = Hotel::Room.new(2)
+
+      input = {
+        :start_date => Date.new(2018,3,5),
+        :end_date => Date.new(2018,3,15),
+        :rooms => [@room, @extra_room],
+        :discount => 0.10,
+        :group => "Sonics"
+      }
+
+      @block = Hotel::Block.new(input)
+      @room.add_reservation(@block)
+
+      @date = Date.new(2018,3,8)
+    end
+
+    it "returns true if room available in requested block" do
+      @room.available_date?(@date, "Sonics").must_equal true
+    end
+
+    it "returns false if room not available in requested block because guest has taken it already" do
+      @block.assign_guest(@room, "Gary Payton")
+      @room.available_date?(@date, "Sonics").must_equal false
+    end
+
+    it "returns false if room not available in requested block because block doesn't exist for that group" do
+      @room.available_date?(@date, "Celtics").must_equal false
+    end
+  end
+
+  describe "available_range?(start_date, end_date) method - general public requesting with gen reservation in place" do
     before do
       @room = Hotel::Room.new(1)
 
       ten_day = {
         :start_date => Date.new(2018,3,5),
         :end_date => Date.new(2018,3,15),
-        :room => 1,
+        :rooms => [@room]
       }
 
       @room.add_reservation(Hotel::Reservation.new(ten_day))
     end
 
     it "raises error if start_date after end_date" do
-      proc{ @room.available_range?(Date.new(2018,3,2), Date.new(2018,3,1)).must_raise StandardError }
+      proc{ @room.available_range?(Date.new(2018,3,2), Date.new(2018,3,1), nil).must_raise StandardError }
     end
 
     it "returns true if requested dates are before reservation dates" do
       start_date = Date.new(2018,2,5)
       end_date = Date.new(2018,2,8)
-      @room.available_range?(start_date, end_date).must_equal true
+      @room.available_range?(start_date, end_date, nil).must_equal true
     end
 
     it "returns true if requested dates are after reservation dates" do
       start_date = Date.new(2018,3,20)
       end_date = Date.new(2018,3,25)
-      @room.available_range?(start_date, end_date).must_equal true
+      @room.available_range?(start_date, end_date, nil).must_equal true
     end
 
     it "returns true if requested start_date matches reservation end_date" do
       start_date = Date.new(2018,3,15)
       end_date = Date.new(2018,3,20)
-      @room.available_range?(start_date, end_date).must_equal true
+      @room.available_range?(start_date, end_date, nil).must_equal true
     end
 
     it "returns false if requested dates and reservation dates have short overlap" do
       start_date = Date.new(2018,3,1)
       end_date = Date.new(2018,3,6)
-      @room.available_range?(start_date, end_date).must_equal false
+      @room.available_range?(start_date, end_date, nil).must_equal false
     end
 
     it "returns false if requested dates and reservation dates have long overlap" do
       start_date = Date.new(2018,3,1)
       end_date = Date.new(2018,3,13)
-      @room.available_range?(start_date, end_date).must_equal false
+      @room.available_range?(start_date, end_date, nil).must_equal false
     end
   end
 
-  describe "available_range?(start_date, end_date) method - block reservations heavy" do
+  describe "available_range?(start_date, end_date) method - general public requesting with block reservation in place" do
     before do
       @room = Hotel::Room.new(1)
       @extra_room = Hotel::Room.new(2)
@@ -233,42 +268,79 @@ describe "Room class" do
       @block = Hotel::Block.new(input)
       @room.add_reservation(@block)
       @extra_room.add_reservation(@block)
-
-      @av_date = Date.new(2018,2,5)
     end
 
     it "raises error if start_date after end_date" do
-      proc{ @room.available_range?(Date.new(2018,3,2), Date.new(2018,3,1)).must_raise StandardError }
+      proc{ @room.available_range?(Date.new(2018,3,2), Date.new(2018,3,1), nil).must_raise StandardError }
     end
 
     it "returns true if requested dates are before reservation dates" do
       start_date = Date.new(2018,2,5)
       end_date = Date.new(2018,2,8)
-      @room.available_range?(start_date, end_date).must_equal true
+      @room.available_range?(start_date, end_date, nil).must_equal true
     end
 
     it "returns true if requested dates are after reservation dates" do
       start_date = Date.new(2018,3,20)
       end_date = Date.new(2018,3,25)
-      @room.available_range?(start_date, end_date).must_equal true
+      @room.available_range?(start_date, end_date, nil).must_equal true
     end
 
     it "returns true if requested start_date matches reservation end_date" do
       start_date = Date.new(2018,3,15)
       end_date = Date.new(2018,3,20)
-      @room.available_range?(start_date, end_date).must_equal true
+      @room.available_range?(start_date, end_date, nil).must_equal true
     end
 
     it "returns false if requested dates and reservation dates have short overlap" do
       start_date = Date.new(2018,3,1)
       end_date = Date.new(2018,3,6)
-      @room.available_range?(start_date, end_date).must_equal false
+      @room.available_range?(start_date, end_date, nil).must_equal false
     end
 
     it "returns false if requested dates and reservation dates have long overlap" do
       start_date = Date.new(2018,3,1)
       end_date = Date.new(2018,3,13)
-      @room.available_range?(start_date, end_date).must_equal false
+      @room.available_range?(start_date, end_date, nil).must_equal false
+    end
+  end
+
+  describe "available_range?(requested_start, requested_end) method - block guest requesting" do
+    before do
+      @room = Hotel::Room.new(1)
+      @extra_room = Hotel::Room.new(2)
+
+      input = {
+        :start_date => Date.new(2018,3,5),
+        :end_date => Date.new(2018,3,15),
+        :rooms => [@room, @extra_room],
+        :discount => 0.10,
+        :group => "Sonics"
+      }
+
+      @block = Hotel::Block.new(input)
+      @room.add_reservation(@block)
+
+      @requested_start = Date.new(2018,3,5)
+      @requested_end = Date.new(2018,3,15)
+    end
+
+    it "returns true if room available in requested block" do
+      @room.available_range?(@requested_start, @requested_end, "Sonics").must_equal true
+    end
+
+    it "returns false if dates requested don't match block dates" do
+      requested_end = Date.new(2018,3,10)
+      @room.available_range?(@requested_start, requested_end, "Sonics").must_equal false
+    end
+
+    it "returns false if room not available in requested block because guest has taken it already" do
+      @block.assign_guest(@room, "Gary Payton")
+      @room.available_range?(@requested_start, @requested_end, "Sonics").must_equal false
+    end
+
+    it "returns false if room not available in requested block because block doesn't exist for that group" do
+      @room.available_range?(@requested_start, @requested_end, "Celtics").must_equal false
     end
   end
 

@@ -6,7 +6,7 @@ describe "Block class" do
     administrator = Hotel::Administrator.new
     @rooms = administrator.all_rooms.take(3)
 
-    @one_day = {
+    @spurs = {
       :start_date => Date.new(2018,3,1),
       :end_date => Date.new(2018,3,2),
       :rooms => @rooms,
@@ -14,7 +14,7 @@ describe "Block class" do
       :group => "Spurs",
     }
 
-    @ten_day = {
+    @sonics = {
       :start_date => Date.new(2018,3,5),
       :end_date => Date.new(2018,3,15),
       :rooms => @rooms,
@@ -22,7 +22,7 @@ describe "Block class" do
       :group => "Sonics",
     }
 
-    @block = Hotel::Block.new(@ten_day)
+    @block = Hotel::Block.new(@sonics)
   end
 
   describe "initialize method" do
@@ -43,40 +43,64 @@ describe "Block class" do
       @block.group.must_be_kind_of String
       @block.group.must_equal "Sonics"
 
-      @block.guest.nil?.must_equal true
+      @block.guest_list.must_be_kind_of Hash
+      @block.guest_list.length.must_equal 3
+    end
+  end
+
+  describe "range_match? method" do
+    it "returns true if range matches" do
+      @block.range_match?(Date.new(2018,3,5), Date.new(2018,3,15)).must_equal true
+    end
+
+    it "returns false range overlaps, but doesn't match" do
+      @block.range_match?(Date.new(2018,3,5), Date.new(2018,3,10)).must_equal false
+    end
+
+    it "returns false if range doesn't overlap and doesn't match" do
+      @block.range_match?(Date.new(2018,2,5), Date.new(2018,2,10)).must_equal false
     end
   end
 
   describe "find_total_cost method" do
     it "returns correct amount when stay is one night long" do
-      block = Hotel::Block.new(@one_day)
+      block = Hotel::Block.new(@spurs)
       block.find_total_cost.must_equal 540.0
     end
 
     it "returns correct amount when stay is many nights long" do
-      block = Hotel::Block.new(@ten_day)
+      block = Hotel::Block.new(@sonics)
       block.find_total_cost.must_equal 5400.0
     end
   end
 
   describe "cost_per_guest method" do
     it "returns correct amount when stay is one night long" do
-      block = Hotel::Block.new (@one_day)
+      block = Hotel::Block.new (@spurs)
       block.cost_per_guest.must_equal 180.0
     end
 
     it "returns correct amount when stay is many nights long" do
-      block = Hotel::Block.new (@ten_day)
+      block = Hotel::Block.new (@sonics)
       block.cost_per_guest.must_equal 1800.0
     end
   end
 
-  describe "assign_guest method" do
+  describe "assign_guest(room, name) method" do
     it "assigns guest to instance of block" do
-      block = Hotel::Block.new (@ten_day)
-      block.guest.nil?.must_equal true
-      block.assign_guest("Gary Payton")
-      block.guest.must_equal "Gary Payton"
+      block = Hotel::Block.new(@sonics)
+      room_one = block.rooms[0]
+      block.guest_list.values.must_equal [nil, nil, nil]
+
+      block.assign_guest(room_one, "Gary Payton")
+      block.guest_list[room_one].must_equal "Gary Payton"
+    end
+
+    it "raises error if room isn't part of block" do
+      block = Hotel::Block.new(@sonics)
+      room_five = Hotel::Room.new(5)
+
+      proc{ block.assign_guest(room_five, "Gary Payton") .must_raise StandardError }
     end
   end
 
