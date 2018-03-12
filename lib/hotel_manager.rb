@@ -84,12 +84,12 @@ module Hotel
       end
     end
 
-    # # find all reservations, general reservations and block reservations
-    # # block reservations may or may not be available to book
-    # def find_reservations(date)
-    #   @all_reservations.find_all { |reservation|
-    #   reservation.include_date?(date) }
-    # end
+    # find all reservations, general reservations and block reservations
+    # block reservations may or may not be available to book
+    def find_reservations(date)
+      @all_reservations.find_all { |reservation|
+      reservation.include_date?(date) }
+    end
 
     # find rooms available to book for the general public
     def find_rooms_general(date)
@@ -97,7 +97,12 @@ module Hotel
     end
 
     # find rooms available for the block guest
-    def find_rooms_block(block)
+    # assumes no two blocks have the same name
+    def find_rooms_block(group)
+      block = @all_reservations.find { |reservation|
+      reservation.group == group}
+
+      block.find_rooms_without_guest
     end
 
     private
