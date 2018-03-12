@@ -28,6 +28,13 @@ module Hotel
       self.find_total_cost / @rooms.length
     end
 
+    def find_rooms_without_guest
+      rooms_wo_guests = []
+      @guest_list.keep_if {|room, guest|
+      rooms_wo_guests << room if guest.nil?}
+      return rooms_wo_guests
+    end
+
     def assign_guest(room, name)
       raise StandardError("That room isn't part of #{@group}.") if !@rooms.include?(room)
 

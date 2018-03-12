@@ -86,6 +86,30 @@ describe "Block class" do
     end
   end
 
+  describe "find_rooms_without_guest method" do
+    it "finds rooms without guests when no guests" do
+      block = Hotel::Block.new(@sonics)
+      rooms_wo_guests = block.find_rooms_without_guest
+
+      rooms_wo_guests.length.must_equal 3
+      rooms_wo_guests[0].room_number.must_equal 1
+      rooms_wo_guests[1].room_number.must_equal 2
+      rooms_wo_guests[2].room_number.must_equal 3
+    end
+
+    it "finds rooms without guests when no guests" do
+      block = Hotel::Block.new(@sonics)
+      @room_one = block.rooms[0]
+      block.assign_guest(@room_one, "Gary Payton")
+      rooms_wo_guests = block.find_rooms_without_guest
+
+
+      rooms_wo_guests.length.must_equal 2
+      rooms_wo_guests[0].room_number.must_equal 2
+      rooms_wo_guests[1].room_number.must_equal 3
+    end
+  end
+
   describe "assign_guest(room, name) method" do
     it "assigns guest to instance of block" do
       block = Hotel::Block.new(@sonics)

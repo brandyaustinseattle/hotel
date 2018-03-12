@@ -121,10 +121,6 @@ describe "Administrator class" do
     end
   end
 
-
-
-
-
   describe "book_specific_room(requested_start:, requested_end:, room_num:, group:, guest:) method - general public" do
     it "raises error if requested_end is before requested_start" do
       proc{ @administrator.book_specific_room(requested_start: Date.new(2018,3,15), requested_end: Date.new(2018,3,5), room_num: 1) }.must_raise StandardError
@@ -237,62 +233,95 @@ describe "Administrator class" do
   #   end
   # end
   #
-  # describe "find_rooms(date) method" do
+  describe "find_rooms_general(date) method" do
+    before do
+      @ten_day = {
+        :start_date => Date.new(2018,3,5),
+        :end_date => Date.new(2018,3,15)
+      }
+    end
+
+    it "returns all rooms when all available" do
+      available_rooms = @administrator.find_rooms_general(Date.new(2018,3,1))
+
+      available_rooms.length.must_equal 20
+      available_rooms[0].must_be_kind_of Hotel::Room
+      available_rooms[0].room_number.must_equal 1
+    end
+
+    it "returns many rooms when many rooms available" do
+      @ten_day[:room] = 1
+      reservation = Hotel::Reservation.new(@ten_day)
+      this_room = @administrator.all_rooms.find {|room| room.room_number == 1}
+      this_room.add_reservation(reservation)
+
+      available_rooms = @administrator.find_rooms_general(Date.new(2018,3,10))
+
+      available_rooms.length.must_equal 19
+      available_rooms[0].must_be_kind_of Hotel::Room
+      available_rooms[0].room_number.must_equal 2
+    end
+
+    it "returns one room when one room available" do
+      (1..19).each {|num|
+        @ten_day[:room] = num
+        reservation = Hotel::Reservation.new(@ten_day)
+        this_room = @administrator.all_rooms.find {|room| room.room_number == num}
+        this_room.add_reservation(reservation)
+      }
+
+      available_rooms = @administrator.find_rooms_general(Date.new(2018,3,10))
+
+      available_rooms.length.must_equal 1
+      available_rooms[0].must_be_kind_of Hotel::Room
+      available_rooms[0].room_number.must_equal 20
+    end
+
+    it "returns empty array when no rooms available" do
+      (1..20).each {|num|
+        @ten_day[:room] = num
+        reservation = Hotel::Reservation.new(@ten_day)
+        this_room = @administrator.all_rooms.find {|room| room.room_number == num}
+        this_room.add_reservation(reservation)
+      }
+
+      available_rooms = @administrator.find_rooms_general(Date.new(2018,3,10))
+
+      available_rooms.empty?.must_equal true
+    end
+  end
+
+  # describe "find_rooms_block(group) method" do
   #   before do
-  #     @ten_day = {
-  #       :start_date => Date.new(2018,3,5),
-  #       :end_date => Date.new(2018,3,15)
-  #     }
+  #     @administrator.create_block( requested_start: Date.new(2018,3,5), requested_end: Date.new(2018,3,15), group: "Sonics", discount: 0.10, rooms_needed: 3)
+  #
+  #     @block_rooms = @administrator.find_rooms_block("Sonics").length.must_equal 3
   #   end
   #
   #   it "returns all rooms when all available" do
-  #     available_rooms = @administrator.find_rooms(Date.new(2018,3,1))
-  #
-  #     available_rooms.length.must_equal 20
-  #     available_rooms[0].must_be_kind_of Hotel::Room
-  #     available_rooms[0].room_number.must_equal 1
+  #     @block_rooms.length.must_equal 3
   #   end
   #
-  #   it "returns many rooms when many rooms available" do
-  #     @ten_day[:room] = 1
-  #     reservation = Hotel::Reservation.new(@ten_day)
-  #     this_room = @administrator.all_rooms.find {|room| room.room_number == 1}
-  #     this_room.add_reservation(reservation)
+  #   it "returns available rooms when only some are available" do
+  #     book_specific_room(requested_start: Date.new(2018,3,5), requested_end: Date.new(2018,3,15), room_num: 1, group: "Sonics", guest: "Gary Payton")
   #
-  #     available_rooms = @administrator.find_rooms(Date.new(2018,3,10))
-  #
-  #     available_rooms.length.must_equal 19
-  #     available_rooms[0].must_be_kind_of Hotel::Room
-  #     available_rooms[0].room_number.must_equal 2
-  #   end
-  #
-  #   it "returns one room when one room available" do
-  #     (1..19).each {|num|
-  #       @ten_day[:room] = num
-  #       reservation = Hotel::Reservation.new(@ten_day)
-  #       this_room = @administrator.all_rooms.find {|room| room.room_number == num}
-  #       this_room.add_reservation(reservation)
-  #     }
-  #
-  #     available_rooms = @administrator.find_rooms(Date.new(2018,3,10))
-  #
-  #     available_rooms.length.must_equal 1
-  #     available_rooms[0].must_be_kind_of Hotel::Room
-  #     available_rooms[0].room_number.must_equal 20
-  #   end
-  #
-  #   it "returns empty array when no rooms available" do
-  #     (1..20).each {|num|
-  #       @ten_day[:room] = num
-  #       reservation = Hotel::Reservation.new(@ten_day)
-  #       this_room = @administrator.all_rooms.find {|room| room.room_number == num}
-  #       this_room.add_reservation(reservation)
-  #     }
-  #
-  #     available_rooms = @administrator.find_rooms(Date.new(2018,3,10))
-  #
-  #     available_rooms.empty?.must_equal true
+  #     @block_rooms.length.must_equal 2
+  #     @block_rooms[0].room_number.must_equal 2
+  #     @block_rooms[1].room_number.must_equal 3
   #   end
   # end
+
+    # it "returns empty array when no rooms available" do
+    #   (1..20).each {|num|
+    #     @ten_day[:room] = num
+    #     reservation = Hotel::Reservation.new(@ten_day)
+    #     this_room = @administrator.all_rooms.find {|room| room.room_number == num}
+    #     this_room.add_reservation(reservation)
+    #   }
+    #
+    #   available_rooms = @administrator.find_rooms_general(Date.new(2018,3,10))
+    #
+    #   available_rooms.empty?.must_equal true
+    # end
 
 end
