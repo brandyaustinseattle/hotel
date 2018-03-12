@@ -30,8 +30,10 @@ module Hotel
 
     def find_rooms_without_guest
       rooms_wo_guests = []
+      
       @guest_list.keep_if {|room, guest|
       rooms_wo_guests << room if guest.nil?}
+      
       return rooms_wo_guests
     end
 
@@ -45,7 +47,9 @@ module Hotel
 
     def load_guest_list
       guest_list = {}
+      
       @rooms.each { |room| guest_list[room] = nil }
+      
       return guest_list
     end
 
