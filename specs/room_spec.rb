@@ -161,7 +161,6 @@ describe "Room class" do
       @room.available_date?(@av_date, nil).must_equal true
     end
 
-
     it "returns true if room has block that ends on request_date" do
       @room.available_date?(Date.new(2018,3,15), nil).must_equal true
     end
