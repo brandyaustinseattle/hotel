@@ -83,6 +83,11 @@ module Hotel
         related_reservation.assign_guest(room, guest)
       end
     end
+    
+    
+    # WITH ADDT TIME FOR REFACTORING, I WOULD REDO MY BOOKING METHODS SO THAT THEY LEVERAGED THE 
+    # FIND_RESERVATIONS, FIND_ROOMS_GENERAL, AND FIND_ROOMS_BLOCK FUNCTIONS BELOW
+    # THIS WAS LESS FEASIBLE WITH MY CURRENT SET UP BECAUSE I TREATED BOOKING THE SAME REGARDLESS OF WHETHER BLOCKS WERE INVOLVED
 
     # find all reservations, general reservations and block reservations
     # block reservations may or may not be available to book

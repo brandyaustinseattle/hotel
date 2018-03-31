@@ -49,7 +49,7 @@ module Hotel
       guest_list = {}
 
       @rooms.each { |room| guest_list[room] = nil }
-      
+
       return guest_list
     end
 
