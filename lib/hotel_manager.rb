@@ -17,7 +17,7 @@ module Hotel
       end
 
       rooms_available = @all_rooms.find_all {|room|
-          room.available_range?(requested_start, requested_end, nil)}
+          available_range?(room, requested_start, requested_end, nil)}
 
       if rooms_available.length < rooms_needed
         raiseStandardError("#{rooms_needed} rooms not available on those dates.")
@@ -34,7 +34,7 @@ module Hotel
       }
 
       block = Hotel::Block.new(input)
-      rooms.each {|room| room.add_reservation(block)}
+      # rooms.each {|room| room.add_reservation(block)}
       @all_reservations << block
     end
 
@@ -43,7 +43,7 @@ module Hotel
       date_check(requested_start, requested_end)
 
       chosen_room = @all_rooms.find {|room|
-        room.available_range?(requested_start, requested_end, group)}
+        available_range?(room, requested_start, requested_end, group)}
 
       raise StandardError("No rooms available. Check start and end dates if reserving a block room.") if chosen_room.nil?
 
@@ -56,7 +56,7 @@ module Hotel
 
       requested_room = @all_rooms.find { |room| room.room_number == room_num }
 
-      if requested_room.available_range?(requested_start, requested_end, group) == false
+      if available_range?(requested_room, requested_start, requested_end, group) == false
         raise StandardError("Room #{room_num} is not available at that time.")
       end
 
@@ -72,7 +72,7 @@ module Hotel
         }
 
         new_reservation = Hotel::Reservation.new(input)
-        room.add_reservation(new_reservation)
+        # room.add_reservation(new_reservation)
         @all_reservations << new_reservation
       else
         related_reservation = @all_reservations.find {|reservation|
@@ -83,22 +83,24 @@ module Hotel
         related_reservation.assign_guest(room, guest)
       end
     end
-    
-    
-    # WITH ADDT TIME FOR REFACTORING, I WOULD REDO MY BOOKING METHODS SO THAT THEY LEVERAGED THE 
-    # FIND_RESERVATIONS, FIND_ROOMS_GENERAL, AND FIND_ROOMS_BLOCK FUNCTIONS BELOW
-    # THIS WAS LESS FEASIBLE WITH MY CURRENT SET UP BECAUSE I TREATED BOOKING THE SAME REGARDLESS OF WHETHER BLOCKS WERE INVOLVED
 
-    # find all reservations, general reservations and block reservations
-    # block reservations may or may not be available to book
+
+
+
+
+
+
+
     def find_reservations(date)
       @all_reservations.find_all { |reservation|
-      reservation.include_date?(date) }
+        reservation.include_date?(date) }
     end
 
     # find rooms available to book for the general public
     def find_rooms_general(date)
-      @all_rooms.find_all { |room| room.available_date?(date, nil) }
+      @all_rooms.find_all { |room|
+        available_date?(room, date, nil)
+      }
     end
 
     # find rooms available for the block guest
@@ -108,6 +110,44 @@ module Hotel
       reservation.group == group}
 
       block.find_rooms_without_guest
+    end
+
+
+
+    def available_date?(room, date, group)
+      if group.nil?
+        @all_reservations.none? { |reservation|
+          reservation.include_date?(date) &&
+          !reservation.include_room?(room)
+        }
+      else
+        @all_reservations.any? { |reservation|
+          reservation.include_date?(date) &&
+            reservation.block? &&
+            reservation.group == group &&
+            reservation.guest_list[self] == nil &&
+            !reservation.include_room?(room)
+        }
+      end
+    end
+
+    def available_range?(room, requested_start, requested_end, group)
+      if group.nil?
+        @all_reservations.none? { |reservation|
+          reservation.range_conflict?(requested_start, requested_end) &&
+          !reservation.include_room?(room)
+        }
+      else
+        @all_reservations.any? { |reservation|
+          reservation.block? &&
+            reservation.group == group &&
+            reservation.guest_list[self] == nil &&
+            reservation.range_match?(requested_start, requested_end) &&
+            !reservation.include_room?(room)
+        }
+        # requested start and end must match days of the block
+        # guest can't request room in block for partial period
+      end
     end
 
     private

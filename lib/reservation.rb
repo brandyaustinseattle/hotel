@@ -22,6 +22,10 @@ module Hotel
       length_of_stay * RATE
     end
 
+    def include_room?(room)
+      @rooms.include?(room)
+    end
+
     def include_date?(date)
       @start_date < date && @end_date > date
     end
